@@ -54,7 +54,7 @@ void handle_client(int client_sock) {
             break;
         }
 
-        buffer[bytes_received] = '\0'; // Null-terminate the string
+        buffer[bytes_received] = '\0';
 
         syslog(LOG_INFO, "Received command: %s", buffer);
 
@@ -112,7 +112,7 @@ void start_daemon() {
 
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;  // Accept connections on any IP
+    server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
 
     if (bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {

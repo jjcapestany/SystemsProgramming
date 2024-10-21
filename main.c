@@ -13,6 +13,7 @@
 
 #define PORT 8080
 #define BACKLOG 10
+#define MAX_ARGS 20
 
 void signal_handler(int signum) {
     if (signum == SIGTERM || signum == SIGINT) {
@@ -23,20 +24,29 @@ void signal_handler(int signum) {
 }
 
 void execute_command(int client_sock, char *command) {
-    char *shell_path = "/Users/j2377312/CLionProjects/yash/yash/yash";  // PATH TO SHELL UPDATE TO YOUR SHELL LOCATION
-    char *args[] = {shell_path, command, NULL};
+    char *shell_path = "/Users/j2377312/CLionProjects/yash/yash/yash";  // PATH TO SHELL UPDATE THIS
+    char *args[MAX_ARGS];
+    char *token;
+    int i = 0;
+
+
+    token = strtok(command, " \n");
+    while (token != NULL && i < MAX_ARGS - 1) {
+        args[i++] = token;
+        token = strtok(NULL, " \n");
+    }
+    args[i] = NULL;
 
     pid_t pid = fork();
     if (pid == 0) {
         dup2(client_sock, STDOUT_FILENO);
         dup2(client_sock, STDERR_FILENO);
+        dup2(client_sock, STDIN_FILENO);
 
-        execv(shell_path, args);
-
-        perror("execv");
+        execvp(shell_path, args);
+        perror("execvp");
         exit(EXIT_FAILURE);
-    }
-    if (pid < 0) {
+    } else if (pid < 0) {
         syslog(LOG_ERR, "Failed to fork for executing custom shell");
     }
 
